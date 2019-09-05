@@ -21,7 +21,7 @@ RUN apk -U upgrade \
   && chmod uog+r /etc/gemrc \
   && rm -rf ~/.gem \
   && cd /standardnotes \
-  && gem install bundler:1.17.1 --system \
+  && gem install bundler:1.17.1 \
   && bundle config --global silence_root_warning 1 \
   && npm install \
   && npm install -g bower grunt \
