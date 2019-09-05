@@ -1,4 +1,4 @@
-FROM node:6-alpine
+FROM node:current-alpine
 
 RUN apk -U upgrade \
     && apk add -t build-dependencies \
