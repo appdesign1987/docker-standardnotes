@@ -3,6 +3,7 @@ FROM node:current-alpine
 RUN apk -U upgrade \
     && apk add -t build-dependencies \
     git \
+    linux-headers \
     curl-dev \
     wget \
     ruby-dev \
