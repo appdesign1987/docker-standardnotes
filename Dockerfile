@@ -11,7 +11,6 @@ RUN apk -U upgrade \
     && apk add \
     tzdata \
     ruby \
-    ruby-rake \ 
     ruby-io-console \
     ruby-json \
     ruby-bigdecimal \
@@ -24,6 +23,8 @@ RUN apk -U upgrade \
   && cd /standardnotes \
   && gem install bundler:1.17.1 \
   && bundle config --global silence_root_warning 1 \
+  && bundle update rake
+  && bundle install
   && npm install \
   && npm install -g bower grunt \
   && bundle exec rake bower:install \
