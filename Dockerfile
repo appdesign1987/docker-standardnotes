@@ -11,6 +11,7 @@ RUN apk -U upgrade \
     && apk add \
     tzdata \
     ruby \
+    ruby-rake \ 
     ruby-io-console \
     ruby-json \
     ruby-bigdecimal \
