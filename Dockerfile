@@ -46,6 +46,8 @@ RUN npm run build
 
 EXPOSE 3000
 
+COPY docker /docker
+
 ENTRYPOINT [ "./docker/entrypoint" ]
 
 CMD [ "start" ]
