@@ -1,40 +1,51 @@
-FROM node:current-alpine
+###
+# Build with 'docker build -t standard_notes_web.img .'
+# Run with 'docker run -d -p 127.0.0.1:3000:3000 --name standard_notes_web --restart always standard_notes_web.img'
+# If you need shell access, run 'docker exec -it standard_notes_web /bin/sh'
+# Access from http://localhost:3000/
+# Set up Nginx to terminate SSL with LetsEncrypt and proxy_pass to http://localhost:3000/
+###
 
-RUN apk -U upgrade \
-    && apk add -t build-dependencies \
-    git \
-    linux-headers \
-    curl-dev \
-    wget \
-    ruby-dev \
-    build-base \ 
-    && apk add \
-    tzdata \
-    ruby \
-    ruby-io-console \
-    ruby-json \
-    ruby-bigdecimal \
-  && git clone https://github.com/standardnotes/web.git /standardnotes \
-  && gem install -N rails --version "$RAILS_VERSION" \
-  && echo 'gem: --no-document' >> ~/.gemrc \
-  && cp ~/.gemrc /etc/gemrc \
-  && chmod uog+r /etc/gemrc \
-  && rm -rf ~/.gem \
-  && cd /standardnotes \
-  && gem install bundler:1.17.1 \
-  && bundle config --global silence_root_warning 1 \
-  && bundle update rake \
-  && bundle install \
-  && npm install \
-  && npm install -g bower grunt \
-  && bundle exec rake bower:install \
-  && grunt \
-  && apk del build-dependencies \
-  && rm -rf /tmp/*  /var/cache/apk/* /tmp/* /root/.gnupg /root/.cache/ /standardnotes/.git 
+FROM ruby:alpine
 
-COPY docker /docker
+RUN apk add --update --no-cache \
+    alpine-sdk \
+	git \
+    nodejs \
+    nodejs-npm \
+    tzdata
+
+WORKDIR /app/
+
+RUN git clone https://github.com/standardnotes/web.git /app
+
+###
+# FOR PRODUCTION USE:
+#
+# If you need the app to continue listening on HTTP instead of HTTPS
+# (like terminating SSL on upstream server, i.e. Nginx proxy_pass to HTTP),
+# you will need to set 'config.force_ssl = false' in 'config/environments/production.rb'.
+#
+# Uncomment SECRET_KEY_BASE, RAILS_ENV, and [optionally] RAILS_SERVE_STATIC_FILES for production:
+# ENV SECRET_KEY_BASE=[VALUE OF `bundle exec rake secret`]
+#
+ ENV RAILS_ENV=production
+#
+ ENV RAILS_SERVE_STATIC_FILES=true
+# Leave RAILS_SERVE_STATIC_FILES commented if Nginx/Apache will serve static files instead of rails.
+###
+
+RUN bundle install
+
+RUN npm install
+
+RUN npm run build
+
+# Uncomment the line below for production:
+ RUN bundle exec rake assets:precompile
 
 EXPOSE 3000
-ENTRYPOINT ["/docker/entrypoint"]
-CMD ["start"]
 
+ENTRYPOINT [ "./docker/entrypoint" ]
+
+CMD [ "start" ]
