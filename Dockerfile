@@ -48,6 +48,6 @@ EXPOSE 3000
 
 COPY docker /docker
 
-ENTRYPOINT [ "./docker/entrypoint" ]
+ENTRYPOINT [ "/docker/entrypoint" ]
 
 CMD [ "start" ]
